@@ -1,0 +1,176 @@
+﻿Overall Packet Structure:
+
++-----------------------------------------------------------+
+|            	 Ethernet Frame (14 bytes)                  |
+|  +-----------------------------------------------------+  |
+|  |          	  IP Packet (20-60 bytes)              	 |  |
+|  |  +-----------------------------------------------+  |  |
+|  |  |     TCP (20-60 bytes) or UDP (8 bytes)        |  |  |
+|  |  |  +-----------------------------------------+  |  |  |
+|  |  |  |        Application Layer Data           |  |  |  |
+|  |  |  |         (Variable size)                 |  |  |  |
+|  |  |  |  +-----------------+  +--------------+  |  |  |  |
+|  |  |  |  |   DNS Message   |  | HTTP Message |  |  |  |  |
+|  |  |  |  | (UDP: <=512 B)  |  | (Variable)   |  |  |  |  |
+|  |  |  |  | (TCP: Variable) |  |              |  |  |  |  |
+|  |  |  |  +-----------------+  +--------------+  |  |  |  |
+|  |  |  |    (either DNS or HTTP, not both)       |  |  |  |
+|  |  |  +-----------------------------------------+  |  |  |
+|  |  +-----------------------------------------------+  |  |
+|  +-----------------------------------------------------+  |
++-----------------------------------------------------------+
+
+As per RFC1035 (https://www.rfc-editor.org/rfc/rfc1035):
+
+DNS Packet Structure:
+
++---------------------+
+|        Header       |  12 bytes
++---------------------+
+|       Question      |  variable
++---------------------+
+|        Answer       |  variable
++---------------------+
+|      Authority      |  variable
++---------------------+
+|      Additional     |  variable
++---------------------+
+
+DNS Header Structure:
+
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                      ID                       |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    QDCOUNT                    |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    ANCOUNT                    |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    NSCOUNT                    |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    ARCOUNT                    |
+|                    16 bits                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+Detailed breakdown of Flags:
+
+QR (1 bit): Query (0) or Response (1)
+Opcode (4 bits): Type of query
+AA (1 bit): Authoritative Answer
+TC (1 bit): TrunCation
+RD (1 bit): Recursion Desired
+RA (1 bit): Recursion Available
+Z (3 bits): Reserved for future use (must be zero)
+RCODE (4 bits): Response code
+
+DNS Opcodes (4-bit field in the header flags):
+
+0    QUERY    Standard query
+1    IQUERY   Inverse query (deprecated)
+2    STATUS   Server status request
+3    -        Unassigned
+4    NOTIFY   Notify message
+5    UPDATE   Dynamic DNS update
+6-15 -        Reserved for future use
+
+Counts:
+
+1. QDCOUNT: Question Count
+   - Number of entries in the Question section
+
+2. ANCOUNT: Answer Count
+   - Number of Resource Records in the Answer section
+
+3. NSCOUNT: Authority Count
+   - Number of Name Server Resource Records in the Authority section
+
+4. ARCOUNT: Additional Count
+   - Number of Resource Records in the Additional section
+
+These counts determine the structure of the sections that follow the header.
+
+DNS Question Structure:
+
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    QNAME                      |
+|                   (Variable)                  |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    QTYPE                      |
+|                  (16 bits)                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+|                    QCLASS                     |
+|                  (16 bits)                    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+Detailed breakdown:
+
+1. QNAME (Query Name): Variable length
+   +--+--+--+--+--+--+--+--+
+   | Length | Label (Bytes)|  Repeated for each label
+   +--+--+--+--+--+--+--+--+
+   |   0x00    |  Null terminator
+   +--+--+--+--+
+
+   Example for "www.example.com":
+   +--+--+--+--+--+--+--+--+--+--+--+
+   |0x03|'w'|'w'|'w'|0x07|'e'|'x'|'a'|
+   +--+--+--+--+--+--+--+--+--+--+--+
+   |'m'|'p'|'l'|'e'|0x03|'c'|'o'|'m'|
+   +--+--+--+--+--+--+--+--+--+--+--+
+   |0x00|
+   +--+--+
+
+2. QTYPE (Query Type): 16 bits
+   Common values:
+   0x0001 : A (IPv4 address)
+   0x0005 : CNAME
+   0x000f : MX
+   0x0002 : NS
+   0x001c : AAAA (IPv6 address)
+
+3. QCLASS (Query Class): 16 bits
+   Most common value:
+   0x0001 : IN (Internet)
+
+DNS Answer Structure:
+
++------------------+
+| Name             |  Variable length
++------------------+
+| Type             |  2 bytes
++------------------+
+| Class            |  2 bytes
++------------------+
+| TTL              |  4 bytes
++------------------+
+| RDLENGTH         |  2 bytes
++------------------+
+| RDATA            |  Variable length
+|                  |  (specified by RDLENGTH)
++------------------+
+
+DNS Resource Record (A Record) Example:
++------------------+---------------------------+----------------+--------------+
+| Field            | Example Data              | Explanation    |Length (bytes)|
++------------------+---------------------------+----------------+--------------+
+| Name             | 03 77 77 77 07 65 78 61   | www.example.com| 17           |
+|                  | 6D 70 6C 65 03 63 6F 6D   | (in DNS format)|              |
+|                  | 00                        |                |              |
++------------------+---------------------------+----------------+--------------+
+| Type             | 00 01                     | A record (1)   | 2            |
++------------------+---------------------------+----------------+--------------+
+| Class            | 00 01                     | IN (1)         | 2            |
++------------------+---------------------------+----------------+--------------+
+| TTL              | 00 00 0E 10               | 3600 seconds   | 4            |
++------------------+---------------------------+----------------+--------------+
+| RDLENGTH         | 00 04                     | 4 bytes        | 2            |
++------------------+---------------------------+----------------+--------------+
+| RDATA            | C0 A8 00 01               | 192.168.0.1    | 4            |
++------------------+---------------------------+----------------+--------------+
+                                                      Total Length: 31 bytes

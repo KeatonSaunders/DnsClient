@@ -1,0 +1,87 @@
+﻿Root (knows about all top-level domains)
+└── .com (knows about all .com domains)
+    └── google.com (knows about all Google's addresses)
+        └── www.google.com = 142.250.xxx.xxx
+
+DNS servers are operated by various entities at different levels of the DNS hierarchy.
+
+1. Root DNS Servers:
+- Operated by 12 different organizations
+- Managed under strict oversight of ICANN (Internet Corporation for Assigned Names and Numbers)
+- 13 root server clusters (named A through M) distributed worldwide
+- Operators include:
+  - Verisign (A, J)
+  - University of Southern California (B)
+  - Cogent Communications (C)
+  - University of Maryland (D)
+  - NASA (E)
+  - Internet Systems Consortium (F)
+  - US Department of Defense (G)
+  - US Army Research Lab (H)
+  - Netnod (I)
+  - RIPE NCC (K)
+  - ICANN (L)
+  - WIDE Project (M)
+
+2. Top-Level Domain (TLD) Servers:
+- Generic TLDs (.com, .net, .org):
+  - .com and .net operated by Verisign
+  - .org operated by Public Interest Registry
+  - Others operated by various registry operators
+- Country Code TLDs (.uk, .de, .jp):
+  - Usually operated by designated organizations within each country
+  - Example: .uk is managed by Nominet UK
+
+3. Authoritative DNS Servers:
+- Can be operated by:
+  - Domain owners themselves (self-hosted)
+  - Domain registrars (GoDaddy, Namecheap)
+  - DNS hosting providers (Cloudflare, Amazon Route 53, Google Cloud DNS)
+  - Web hosting companies (HostGator, Bluehost)
+  - Cloud providers (AWS, Google Cloud, Azure)
+
+4. Recursive DNS Servers:
+- ISP DNS servers:
+  - Run by internet service providers for their customers
+- Public DNS services:
+  - Google (8.8.8.8)
+  - Cloudflare (1.1.1.1)
+  - Quad9 (9.9.9.9)
+  - OpenDNS
+- Enterprise DNS servers:
+  - Run by organizations for their internal networks
+
+Example of DNS Resolution Path:
+
+User -> ISP's Recursive DNS -> Root Server -> TLD Server -> Authoritative Server
+
+Common DNS Providers and Their Services:
+
+1. Managed DNS Services:
+
+Provider        Features
+---------       --------
+Cloudflare      - Free DDoS protection
+                - Global CDN
+                - DNSSEC support
+
+Amazon Route 53 - High availability
+                - Health checks
+                - Traffic routing
+
+Google Cloud    - Global anycast network
+DNS             - Low latency
+                - High redundancy
+
+2. Public DNS Resolvers:
+
+Provider    IP Addresses     Features
+--------    ------------     --------
+Google      8.8.8.8         - High reliability
+            8.8.4.4         - No filtering
+
+Cloudflare  1.1.1.1         - Privacy focused
+            1.0.0.1         - Fast performance
+
+Quad9       9.9.9.9         - Security focused
+            149.112.112.112 - Malware blocking

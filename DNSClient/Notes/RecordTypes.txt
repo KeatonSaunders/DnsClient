@@ -1,0 +1,125 @@
+1. A (Address) Record - Type 1
+- Maps a domain name to an IPv4 address
+- Most basic and common DNS record type
+- Example: `example.com -> 93.184.216.34`
+- Use cases:
+  - Basic website hosting
+  - Server location for services
+  - Load balancer endpoints
+  - Direct IP routing
+
+2. AAAA (IPv6 Address) Record - Type 28
+- Maps a domain name to an IPv6 address
+- IPv6 equivalent of A record
+- Example: `example.com -> 2606:2800:220:1:248:1893:25c8:1946`
+- Use cases:
+  - IPv6-enabled services
+  - Dual-stack hosting (supporting both IPv4 and IPv6)
+  - Modern cloud infrastructure
+  - Future-proofing as IPv4 addresses become scarcer
+
+3. CNAME (Canonical Name) Record - Type 5
+- Creates an alias from one domain name to another
+- Points to another domain, not directly to an IP
+- Example: `www.example.com -> example.com`
+- Use cases:
+  - Subdomains pointing to main domain
+  - CDN integration
+  - Load balancing
+  - Third-party service integration (like email or hosting providers)
+
+4. MX (Mail Exchange) Record - Type 15
+- Specifies mail servers responsible for receiving email
+- Includes priority values (lower number = higher priority)
+- Example: `example.com -> 10 mail1.example.com, 20 mail2.example.com`
+- Use cases:
+  - Email server configuration
+  - Backup mail server setup
+  - Email hosting services (Gmail, Office 365)
+  - Anti-spam systems
+
+5. TXT (Text) Record - Type 16
+- Holds text information for various purposes
+- Can contain any text-based data
+- Example: `example.com -> "v=spf1 include:_spf.google.com ~all"`
+- Use cases:
+  - SPF records for email authentication
+  - DKIM email signing verification
+  - Domain ownership verification
+  - General documentation
+  - Security policies (DMARC)
+
+6. SOA (Start of Authority) Record - Type 6
+- Contains administrative information about the DNS zone
+- One SOA record per zone
+- Contains:
+  - Primary nameserver
+  - Admin email
+  - Serial number (zone version)
+  - Refresh, retry, expire timers
+  - Minimum TTL
+- Use cases:
+  - Zone transfers between DNS servers
+  - DNS cache management
+  - DNS troubleshooting
+  - Zone maintenance scheduling
+
+7. NS (Nameserver) Record - Type 2
+- Delegates a DNS zone to a set of authoritative nameservers
+- Points to servers that hold DNS records
+- Example: `example.com -> ns1.dnsprovider.com`
+- Use cases:
+  - DNS hosting setup
+  - Domain delegation
+  - DNS redundancy
+  - Split DNS setups
+
+8. PTR (Pointer) Record - Type 12
+- Reverse DNS lookup - maps IP address to domain name
+- Opposite of A/AAAA records
+- Example: `8.8.8.8.in-addr.arpa -> dns.google`
+- Use cases:
+  - Email server verification
+  - Logging and diagnostics
+  - Spam prevention
+  - Network troubleshooting
+  - Security systems
+
+Common combinations and scenarios:
+
+1. Basic Website Setup:
+
+example.com.     A     93.184.216.34
+www.example.com. CNAME example.com
+
+2. Email Setup:
+
+example.com.     MX    10 mail.example.com
+example.com.     TXT   "v=spf1 include:_spf.google.com ~all"
+mail.example.com A     93.184.216.35
+
+3. Modern Dual-Stack Setup:
+
+example.com.     A     93.184.216.34
+example.com.     AAAA  2606:2800:220:1:248:1893:25c8:1946
+
+4. CDN Integration:
+
+www.example.com. CNAME cdn.provider.com
+images.example.com. CNAME cdn.provider.com
+
+5. Complete Domain Setup:
+
+example.com.     SOA   ns1.example.com. admin.example.com. (
+                      2023121501 ; serial
+                      3600       ; refresh
+                      1800       ; retry
+                      604800     ; expire
+                      86400      ; minimum TTL
+                      )
+example.com.     NS    ns1.example.com.
+example.com.     NS    ns2.example.com.
+example.com.     A     93.184.216.34
+example.com.     MX    10 mail.example.com.
+example.com.     TXT   "v=spf1 mx -all"
+www.example.com. CNAME example.com.
